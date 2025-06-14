@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<!-- SEO Optimization: The lang attribute is essential for accessibility and search engines. -->
+<html lang="en">
+<head>
+    <!-- Step 1: SEO & Performance - Basic Meta Tags -->
+    <meta charset="UTF-8">
+
+    <!-- SEO Optimization: The title is critical for SEO and user experience. -->
+    <title>Glass Case of Emoji</title>
+
+    <!-- SEO Optimization: A concise, compelling description for search engine results. -->
+    <meta name="description" content="A fun, interactive loupe with liquid glass effects that distort a scrolling wall of emoji.">
+    
+    <!-- Core Web Vitals: Ensures proper rendering and scaling on all devices, crucial for mobile usability. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Step 1: SEO Optimization - Canonical URL to prevent duplicate content issues. -->
+    <link rel="canonical" href="https://pirillo.com/arcade/glass-emoji.html">
+
+    <!-- Step 1: SEO Optimization - Open Graph meta tags for rich sharing on social platforms like Facebook. -->
+    <meta property="og:title" content="Glass Case of Emoji">
+    <meta property="og:description" content="A fun, interactive loupe with liquid glass effects that distort a scrolling wall of emoji.">
+    <meta property="og:image" content="https://pirillo.com/arcade/images/glass-emoji.png">
+    <meta property="og:url" content="https://pirillo.com/arcade/glass-emoji.html">
+    <meta property="og:type" content="website">
+
+    <!-- Step 1: SEO Optimization - Twitter Card meta tags for rich sharing on Twitter. -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Glass Case of Emoji">
+    <meta name="twitter:description" content="A fun, interactive loupe with liquid glass effects that distort a scrolling wall of emoji.">
+    <meta name="twitter:image" content="https://pirillo.com/arcade/images/glass-emoji.png">
+    <meta name="twitter:creator" content="@ChrisPirillo">
+
+    <!-- Step 2: Frontend Performance - Resource Hints to speed up connections to critical third-party origins. -->
+    <!-- Pre-connect to Google Fonts and Tailwind CDN to reduce DNS lookup, TCP, and TLS negotiation time. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+
+    <!-- Step 2: Frontend Performance - Preload critical resources to fetch them earlier in the page load process. -->
+    <!-- Preloading the font CSS. The 'display=swap' parameter is crucial for preventing Flash of Invisible Text (FOIT) and improving LCP. -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Fallback for browsers that don't support preload -->
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"></noscript>
+    
+    <!-- Preloading Tailwind CSS since it's a render-blocking resource. -->
+    <link rel="preload" href="https://cdn.tailwindcss.com/" as="script">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Step 1: SEO Optimization - JSON-LD Structured Data for Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Glass Case of Emoji",
+      "description": "A fun, interactive loupe with liquid glass effects that distort a scrolling wall of emoji.",
+      "url": "https://pirillo.com/arcade/glass-emoji.html",
+      "applicationCategory": "Game",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript and CSS support.",
+      "image": "https://pirillo.com/arcade/images/glass-emoji.png",
+      "author": {
+        "@type": "Person",
+        "name": "Chris Pirillo",
+        "url": "https://chris.pirillo.com/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Pirillo"
+      }
+    }
+    </script>
+    
+    <!-- Step 2: Performance - All CSS is inlined in this style block. For this single-page app, this eliminates a render-blocking request for an external stylesheet. -->
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            /* Default to light mode colors, will be overridden by .dark-mode */
+            background-color: #fff;
+            color: #111;
+            font-family: 'Inter', sans-serif;
+            cursor: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin: 0;
+            height: 100%;
+        }
+        
+        body.dark-mode {
+            background-color: #111;
+            color: #fff;
+        }
+
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Fallback for older browsers */
+            height: 100dvh; /* Dynamic viewport height unit for modern browsers */
+            overflow-x: hidden;
+            /* ADDED: Add perspective for 3D effect, though we are faking it with scale and opacity */
+            perspective: 800px;
+        }
+
+        #emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 2.5rem;
+            width: 120vw;
+            will-change: transform;
+            position: relative;
+            z-index: 1;
+            /* ADDED: Preserve 3D transformations for children */
+            transform-style: preserve-3d;
+        }
+
+        .emoji {
+            font-size: 3.5rem; 
+            text-align: center;
+            /* MODIFIED: Smoother transitions for transform, opacity and filter */
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease, filter 0.4s ease;
+            will-change: transform, filter, opacity;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .liquidGlass-wrapper {
+          position: relative;
+          display: flex;
+          font-weight: 600;
+          overflow: hidden;
+          color: white; 
+          box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+        }
+
+        .liquidGlass-effect {
+          position: absolute;
+          z-index: 0;
+          inset: 0;
+          backdrop-filter: blur(3px);
+          filter: url(#glass-distortion);
+          overflow: hidden;
+          isolation: isolate;
+        }
+
+        .liquidGlass-tint {
+          z-index: 1;
+          position: absolute;
+          inset: 0;
+          background: rgba(255, 255, 255, 0.25);
+          transition: background-color 0.3s ease;
+        }
+        
+        body.dark-mode .liquidGlass-tint {
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        .liquidGlass-shine {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          overflow: hidden;
+          box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+                      inset 0 -1px 1px 0 rgba(255, 255, 255, 0.2),
+                      inset 4px 0px 4px rgba(255,255,255,0.1), 
+                      inset -4px 0px 4px rgba(255,255,255,0.1);
+        }
+
+        .liquidGlass-content {
+          z-index: 3;
+          text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        #loupe {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            z-index: 100;
+            border-radius: 50%;
+            will-change: transform; 
+        }
+        
+        #loupe > div {
+            border-radius: 50%;
+        }
+
+        #controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            border-radius: 1.8rem;
+            padding: 0.4rem;
+        }
+
+        #controls > div {
+            border-radius: 1.8rem;
+        }
+        
+        #controls .liquidGlass-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.1rem 0.5rem;
+            flex-wrap: nowrap;
+        }
+
+        .control-button {
+            font-size: 1rem;
+            color: black;
+            padding: 0.4rem 0.9rem;
+            border-radius: 1.2rem;
+            border: 1px solid transparent; 
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        body.dark-mode .control-button {
+            color: white;
+        }
+        
+        .control-button:hover {
+            transform: scale(1);
+            color: #ff3b30; 
+            text-shadow: 0 0 5px rgba(255, 59, 48, 0.5);
+        }
+
+        body.dark-mode .control-button:hover {
+            color: #ffde03; 
+            text-shadow: 0 0 5px rgba(255, 222, 3, 0.5);
+        }
+        
+        .control-button.active:hover {
+             color: black;
+             text-shadow: none;
+        }
+
+        body.dark-mode .control-button.active:hover {
+             color: white;
+             text-shadow: none;
+        }
+
+        .control-button.active {
+            transform: scale(1);
+            backdrop-filter: none;
+            border-color: transparent;
+            background-color: rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
+            text-shadow: none; 
+            color: black;
+        }
+
+        body.dark-mode .control-button.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+            color: white;
+        }
+        
+        @media (max-width: 700px) {
+            #controls {
+                width: auto;
+                max-width: 95vw;
+            }
+            .control-button {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.7rem;
+            }
+            #controls .liquidGlass-content {
+                gap: 0.2rem;
+            }
+            .normal-button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .control-button {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.5rem;
+            }
+            #controls .liquidGlass-content {
+                gap: 0.1rem;
+            }
+        }
+        
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<!-- MODIFIED: Default to dark mode by adding the class here -->
+<body class="dark-mode">
+    
+    <div id="app-container">
+        <main>
+            <h1 class="visually-hidden">Glass Case of Emoji: Interactive Loupe</h1>
+
+            <div id="emoji-container" class="absolute top-0 left-[-10vw]">
+                <div id="emoji-grid" aria-hidden="true"></div>
+            </div>
+
+            <div id="loupe" class="liquidGlass-wrapper" aria-hidden="true">
+                <div class="liquidGlass-effect"></div>
+                <div class="liquidGlass-tint"></div>
+                <div class="liquidGlass-shine"></div>
+            </div>
+        </main>
+
+        <footer>
+            <nav id="controls" class="liquidGlass-wrapper" aria-label="Emoji Effects Controls">
+                <div class="liquidGlass-effect"></div>
+                <div class="liquidGlass-tint"></div>
+                <div class="liquidGlass-shine"></div>
+                <div class="liquidGlass-content">
+                    <div class="control-button active normal-button" data-tool="normal">Normal</div>
+                    <div class="control-button" data-tool="magnify">Magnify</div>
+                    <div class="control-button" data-tool="pull">Pull</div>
+                    <div class="control-button" data-tool="repel">Repel</div>
+                    <div class="control-button" data-tool="decolorize">Decolorize</div>
+                    <div class="control-button" data-tool="invert">Invert</div>
+                    <div id="theme-toggle" class="control-button" data-tool="theme">Light</div>
+                </div>
+            </nav>
+        </footer>
+    </div>
+    
+    <svg style="display: none">
+      <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence"/>
+        <feComponentTransfer in="turbulence" result="mapped">
+          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+          <fePointLight x="-200" y="-200" z="300" />
+        </feSpecularLighting>
+        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"/>
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="150" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </svg>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('emoji-grid');
+            const container = document.getElementById('emoji-container');
+            const loupe = document.getElementById('loupe');
+            const controls = document.getElementById('controls');
+            const themeToggleButton = document.getElementById('theme-toggle');
+
+            const emojis = [
+                '🥑', '🐞', '🧙', '🐮', '🦶', '🦒', '🏀', '🥥', '🥟', '🌙', '🍿', '🏰', '🍇', '🌕', '🥐', '🌀', '🎤', '💥', '🦐', '🌎', '🥇', '🍄', '🦄', '🧂', '🏓', '🦷', '🍷', '🦥', '📂', '🌶', '🔭', '🍺', '🔌', '🔒', '🐥', '🧁', '💡', '🦎', '👑', '🦜', '🍸', '👺', '🍉', '🍒', '🌯', '🍕',
+                '😀', '😂', '😍', '🤔', '😎', '😭', '🤯', '🥳', '👽', '💀', '🎃', '👻', '🤖', '👾', '🚀', '🛸', '✨', '🌟', '🔥', '💧', '💨', '☀️', '☁️', '🌈', '⚡️', '❄️', '🌊', '🌍', '🪐', '☄️', '⭐️', '🌹', '🌻', '🌲', '🌵', '🍎', '🍌', '🍓', '🍑', '🥝', '🍔', '🍟', '🌮', '🍣', '🍩', '🍪', '🎂', '🍭', '☕️', '🍹', '⚽️', '🏈', '⚾️', '🎾', '🎱', '🎳', '🎮', '🎲', '🎯', '🎸', '🎹', '🎺', '🎻', '🎧', '🎨', '🎬', '🎭', '🚗', '✈️', '⛵️', '🚲', '🛴', '🗺', '🗽', '🗿', '🏠', '⛺️', '💻', '📱', '⌚️', '💾', '💿', '💎', '💰', '🏆', '🎁', '🎉', '💌', '🔑', '❤️', '💔', '💯', '✅', '❌', '❓', '❗️', '💤', '👋', '👍', '👎', '🙏', '🧠', '👀', '👣',
+                '😁', '🤣', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '😋', '😌', '😏', '😐', '😑', '😒', '😓', '😔', '😕', '😖', '😗', '😘', '😙', '😚', '😛', '😜', '😝', '😞', '😟', '😠', '😡', '😢', '😣', '😤', '😥', '😦', '😧', '😨', '😩', '😪', '😫', '😬', '😮', '😯', '😰', '😱', '😲', '😳', '😴', '😵', '😶', '😷', '😸', '😹', '😺', '😻', '😼', '😽', '😾', '😿', '🙀', '🙁', '🙂', '🙃', '🙄', '🙅', '🙆', '🙇', '🙈', '🙉', '🙊', '🙋', '🙌', '🙍', '🙎', '👮', '🧚', '🧛', '🧜', '🧝', '🧞', '🧟', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '⭕️', '🛑', '⛔️', '📛', '🚫', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❕', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🏧', '🚾', '♿️', '🅿️', '🛗', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸', '⏯', '⏹', '⏺', '⏭', '⏮', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '〰️', '➰', '➿', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '◼️', '◻️', '◾️', '◽️', '▪️', '▫️', '🔶', '🔷', '🔸', '🔹', '🔳', '🔲', '💭', '🗯', '💬', '🗨', '🧐', '🧑‍🎄', '🧑‍🤝‍🧑', '🏯', '🏟', '🎡', '🎢', '🎠', '⛲️', '⛱', '🏖', '🏝', '🏜', '🌋', '⛰', '🏔', '🗻', '🏕', '🏡', '🏘', '🏚', '🏗', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩', '🛤', '🛣', '🗾', '🎑', '🏞', '🌅', '🌄', '🌠', '🎇', '🎆', '🌇', '🌆', '🏙', '🌃', '🌌', '🌉', '🌁'
+            ];
+            
+            const numCols = 15;
+            const numRows = 50; 
+
+            let activeTool = 'normal';
+            let allEmojiElements = [];
+            
+            // MODIFIED: Function now assigns a random depth to each emoji for a parallax effect.
+            function createGridContent() {
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < numRows * numCols; i++) {
+                    const emojiSpan = document.createElement('span');
+                    emojiSpan.classList.add('emoji');
+                    emojiSpan.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+                    // Add random depth properties.
+                    // 'depth' will control scale (0.6 to 1.2).
+                    // Opacity is mapped from depth for a dimming effect (0.5 to 1.0).
+                    const depth = Math.random() * 0.6 + 0.6; 
+                    emojiSpan.dataset.depth = depth;
+                    emojiSpan.style.transform = `scale(${depth})`;
+                    emojiSpan.style.opacity = 0.5 + (depth - 0.6) * (0.5 / 0.6); 
+                    
+                    fragment.appendChild(emojiSpan);
+                }
+                return fragment;
+            }
+
+            const gridContent1 = createGridContent();
+            const gridContent2 = gridContent1.cloneNode(true);
+            grid.appendChild(gridContent1);
+            grid.appendChild(gridContent2);
+            allEmojiElements = Array.from(grid.children);
+
+            const gridHeight = grid.offsetHeight;
+            const halfGridHeight = gridHeight / 2;
+
+            let scrollY = 0;
+            const scrollSpeed = 0.2; 
+            
+            const pointerPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            const loupeState = { radius: 100 };
+            
+            function updatePointerPosition(e) {
+                if (e.touches && e.touches.length > 0) {
+                    pointerPos.x = e.touches[0].clientX;
+                    pointerPos.y = e.touches[0].clientY;
+                } else {
+                    pointerPos.x = e.clientX;
+                    pointerPos.y = e.clientY;
+                }
+            }
+
+            window.addEventListener('mousemove', updatePointerPosition);
+            window.addEventListener('touchmove', e => {
+                e.preventDefault(); 
+                updatePointerPosition(e);
+            }, { passive: false });
+            window.addEventListener('touchstart', updatePointerPosition);
+
+
+            function animate() {
+                scrollY -= scrollSpeed;
+                if (scrollY < -halfGridHeight) {
+                    scrollY += halfGridHeight;
+                }
+                container.style.transform = `translateY(${scrollY}px)`;
+
+                const loupeX = pointerPos.x;
+                const loupeY = pointerPos.y;
+                loupe.style.transform = `translate(${loupeX - loupeState.radius}px, ${loupeY - loupeState.radius}px)`;
+
+                allEmojiElements.forEach(emoji => {
+                    const rect = emoji.getBoundingClientRect();
+                    const emojiCenterX = rect.left + rect.width / 2;
+                    const emojiCenterY = rect.top + rect.height / 2;
+                    
+                    const dx = emojiCenterX - loupeX;
+                    const dy = emojiCenterY - loupeY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < loupeState.radius) {
+                        applyToolEffect(emoji, dx, dy, distance);
+                    } else {
+                        // MODIFIED: Reset to its base depth state, not a generic state.
+                        const baseScale = parseFloat(emoji.dataset.depth) || 1;
+                        emoji.style.transform = `scale(${baseScale})`;
+                        emoji.style.filter = 'grayscale(0)';
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            // MODIFIED: Tool effects now respect the base depth/scale of each emoji.
+            function applyToolEffect(emoji, dx, dy, distance) {
+                const proximity = (loupeState.radius - distance) / loupeState.radius;
+                const baseScale = parseFloat(emoji.dataset.depth) || 1;
+
+                let scaleX = baseScale;
+                let scaleY = baseScale;
+                let translateX = 0;
+                let translateY = 0;
+                let filter = 'grayscale(0)';
+
+                switch(activeTool) {
+                    case 'normal': break;
+                    case 'magnify':
+                        const magScale = baseScale * (1 + proximity * 1.8);
+                        scaleX = magScale;
+                        scaleY = magScale;
+                        break;
+                    case 'repel':
+                        const moveFactor = proximity * 150;
+                        const angle = Math.atan2(dy, dx);
+                        translateX = Math.cos(angle) * moveFactor;
+                        translateY = Math.sin(angle) * moveFactor;
+                        break;
+                    case 'pull':
+                        translateX = -dx * proximity;
+                        translateY = -dy * proximity;
+                        break;
+                    case 'decolorize':
+                        filter = 'grayscale(1)';
+                        break;
+                    case 'invert':
+                        scaleX = baseScale;
+                        scaleY = -baseScale;
+                        break;
+                }
+                 
+                emoji.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+                emoji.style.filter = filter;
+            }
+            
+            controls.addEventListener('click', e => {
+                const targetButton = e.target.closest('.control-button');
+                if (!targetButton) return;
+
+                const tool = targetButton.dataset.tool;
+
+                if (tool === 'theme') {
+                    document.body.classList.toggle('dark-mode');
+                    if (document.body.classList.contains('dark-mode')) {
+                        themeToggleButton.textContent = 'Light';
+                    } else {
+                        themeToggleButton.textContent = 'Dark';
+                    }
+                } else {
+                    const currentActive = controls.querySelector('.control-button.active');
+                    if (currentActive && currentActive.dataset.tool === 'theme') {
+                       currentActive.classList.remove('active');
+                    }
+                    if(currentActive && currentActive !== targetButton) {
+                        currentActive.classList.remove('active');
+                    }
+                    targetButton.classList.add('active');
+                    activeTool = tool;
+                }
+            });
+
+            animate();
+        });
+    </script>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1CQ4D3VQ3L');
+    </script>
+</body>
+</html>
